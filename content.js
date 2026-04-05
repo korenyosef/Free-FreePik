@@ -1,53 +1,47 @@
-/**
- * Freepik HD Extractor - Fixed Button Hijacker
- */
-
-console.log("[Freepik HD] Hijacker Active.");
+console.log("[Free FreePik] Hijacker Active.");
 
 function parseSrcset(srcset, baseUri) {
   if (!srcset) return [];
-  return srcset.split(',')
-    .map(entry => entry.trim())
+  return srcset
+    .split(",")
+    .map((entry) => entry.trim())
     .filter(Boolean)
-    .map(entry => {
+    .map((entry) => {
       const parts = entry.split(/\s+/);
       const url = parts[0];
       const descriptor = parts[1] || "original";
       try {
         return { url: new URL(url, baseUri).href, descriptor: descriptor };
-      } catch (e) { return null; }
+      } catch (e) {
+        return null;
+      }
     })
-    .filter(item => item !== null);
+    .filter((item) => item !== null);
 }
 
-/**
- * Creates the resolution menu inside a Shadow DOM
- */
 function showMenu(button, variants) {
-  let host = document.getElementById('fp-hd-menu-host');
+  let host = document.getElementById("fp-hd-menu-host");
   if (host) host.remove();
 
-  host = document.createElement('div');
-  host.id = 'fp-hd-menu-host';
-  host.style.position = 'fixed';
-  host.style.zIndex = '2147483647';
+  host = document.createElement("div");
+  host.id = "fp-hd-menu-host";
+  host.style.position = "fixed";
+  host.style.zIndex = "2147483647";
   document.body.appendChild(host);
-  const shadow = host.attachShadow({ mode: 'open' });
+  const shadow = host.attachShadow({ mode: "open" });
 
   const rect = button.getBoundingClientRect();
   const menuWidth = 300;
   const screenWidth = window.innerWidth;
-  
-  // Calculate horizontal position: if menu would go off-screen, align to right edge of button
+
   let leftPos = rect.left;
   if (leftPos + menuWidth > screenWidth) {
     leftPos = rect.right - menuWidth;
   }
-  
-  // Safety check: ensure it doesn't go off the left edge either
+
   leftPos = Math.max(10, leftPos);
 
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     .menu {
       position: fixed;
@@ -124,28 +118,28 @@ function showMenu(button, variants) {
   `;
   shadow.appendChild(style);
 
-  const menu = document.createElement('div');
-  menu.className = 'menu';
-  
-  variants.forEach(v => {
-    const btn = document.createElement('button');
-    btn.className = 'item';
-    
+  const menu = document.createElement("div");
+  menu.className = "menu";
+
+  variants.forEach((v) => {
+    const btn = document.createElement("button");
+    btn.className = "item";
+
     let sizeLabel = v.descriptor;
     let qualityName = "Download";
     let isWatermarked = false;
 
-    if (v.descriptor.endsWith('w')) {
-      const num = parseInt(v.descriptor.replace('w', ''));
+    if (v.descriptor.endsWith("w")) {
+      const num = parseInt(v.descriptor.replace("w", ""));
       sizeLabel = `${num}px`;
-      
+
       if (num <= 400) qualityName = "Small View";
       else if (num <= 800) qualityName = "Regular";
       else if (num <= 1200) qualityName = "High-Res";
       else if (num <= 1600) qualityName = "Full HD";
       else qualityName = "Ultra HD";
 
-      if (['1060', '1480', '2000'].includes(num.toString())) {
+      if (["1060", "1480", "2000"].includes(num.toString())) {
         isWatermarked = true;
       }
     }
@@ -153,76 +147,78 @@ function showMenu(button, variants) {
     btn.innerHTML = `
       <div class="label-group">
         ${qualityName}
-        ${isWatermarked ? '<span class="watermark-note">Watermark</span>' : ''}
+        ${isWatermarked ? '<span class="watermark-note">Watermark</span>' : ""}
       </div> 
       <span class="tag">${sizeLabel}</span>
     `;
-    
-    // USE MOUSEDOWN FOR INSTANT ACTION
+
     btn.onmousedown = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("[Freepik HD] Downloading:", v.url);
+      console.log("[Free FreePik] Downloading:", v.url);
       chrome.runtime.sendMessage({
         action: "download",
         url: v.url,
-        filename: `freepik_hd_${v.descriptor}_${Date.now()}.jpg`
+        filename: `freepik_hd_${v.descriptor}_${Date.now()}.jpg`,
       });
       host.remove();
     };
-    
+
     menu.appendChild(btn);
   });
 
   shadow.appendChild(menu);
 
-  // FIXED CLOSER: Shadow-aware outside click detection
   const closer = (e) => {
     const path = e.composedPath();
     if (!path.includes(host) && !path.includes(button)) {
       host.remove();
-      document.removeEventListener('mousedown', closer, true);
+      document.removeEventListener("mousedown", closer, true);
     }
   };
-  // Delay listener slightly to prevent immediate trigger from the same click
   setTimeout(() => {
-    document.addEventListener('mousedown', closer, true);
+    document.addEventListener("mousedown", closer, true);
   }, 10);
 }
 
 function hijackButton() {
-  const premiumBtn = document.querySelector('button[data-cy="go-premium-download"]');
-  
+  const premiumBtn = document.querySelector(
+    'button[data-cy="go-premium-download"]',
+  );
+
   if (premiumBtn && !premiumBtn.dataset.hijacked) {
     premiumBtn.dataset.hijacked = "true";
-    
-    // Visual update
-    const textSpan = premiumBtn.querySelector('span');
+
+    const textSpan = premiumBtn.querySelector("span");
     if (textSpan) textSpan.innerText = "Download";
     premiumBtn.style.background = "#1273eb";
     premiumBtn.style.color = "white";
     premiumBtn.style.border = "none";
 
-    // Click Override
-    premiumBtn.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
+    premiumBtn.addEventListener(
+      "mousedown",
+      (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
 
-      const mainImg = document.querySelector('img[srcset], img[data-srcset]');
-      if (mainImg) {
-        const srcset = mainImg.getAttribute('srcset') || mainImg.getAttribute('data-srcset');
-        const variants = parseSrcset(srcset, document.baseURI);
-        if (variants.length > 0) {
-          showMenu(premiumBtn, variants);
-        } else {
-          console.error("No srcset variants found.");
+        const mainImg = document.querySelector("img[srcset], img[data-srcset]");
+        if (mainImg) {
+          const srcset =
+            mainImg.getAttribute("srcset") ||
+            mainImg.getAttribute("data-srcset");
+          const variants = parseSrcset(srcset, document.baseURI);
+          if (variants.length > 0) {
+            showMenu(premiumBtn, variants);
+          } else {
+            console.error("No srcset variants found.");
+          }
         }
-      }
-    }, true);
+      },
+      true,
+    );
 
-    // Block standard clicks
     premiumBtn.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
