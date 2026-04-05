@@ -1,0 +1,83 @@
+/* HD Badge Style */
+.fp-hd-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 999;
+  background-color: #1273eb;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: transform 0.2s, background-color 0.2s;
+  pointer-events: auto !important;
+}
+
+.fp-hd-badge:hover {
+  background-color: #0d5bbd;
+  transform: scale(1.05);
+}
+
+/* Quality Picker Popover */
+.fp-quality-picker {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1000;
+  width: 160px;
+  border: 1px solid #ddd;
+  animation: fpFadeIn 0.2s ease;
+}
+
+.fp-quality-picker h4 {
+  margin: 4px 8px 8px;
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fp-quality-btn {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.fp-quality-btn:hover {
+  background: #e9ecef;
+  border-color: #ddd;
+}
+
+.fp-quality-btn span.size {
+  background: #1273eb;
+  color: white;
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+@keyframes fpFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

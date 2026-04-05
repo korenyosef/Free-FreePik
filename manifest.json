@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Free FreePik",
+  "version": "3.0",
+  "description": "Unlock high-quality image downloads on Freepik with ease. Choose your preferred resolution and download directly from the page.",
+  "permissions": [
+    "downloads",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.freepik.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.freepik.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
